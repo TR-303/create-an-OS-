@@ -11,14 +11,22 @@ LOADER_START_ADDR   equ 0x7e00
     db (%1 >>24) & 0xff
 %endmacro
 
-CODE32_START        equ 0
-CODE32_LIMIT        equ 0xfffff
-CODE32_ATTR         equ 0b0100000010011000
+ATTR_EXEC         equ 0b0100000010011000
+ATTR_DATA         equ 0b0000000010010010
 
-DATA_START          equ 0
-DATA_LIMIT          equ 0xfffff
-DATA_ATTR           equ 0b0000000010010010
+PAGE_TABLE_SIZE         equ 0x1000  ;4kb
+PAGE_SIZE               equ 0x1000  ;4kb
 
-VIDEO_START         equ 0xb8000
-VIDEO_LIMIT         equ 0x7fff
-VIDEO_ATTR          equ 0b0000000010010010
+PAGE_START              equ 0x100000
+PAGE_LIMIT              equ 0xfffff
+PAGE_ATTR               equ 0b0000000010010010
+
+;based at PAGE_START
+PAGE_DIR_PHY_ADDR       equ 0xff000
+PAGE_TABLE_PHY_START    equ 0
+;
+
+PAGE_DIR_VIR_ADDR       equ 0xfffff000
+PAGE_TABLE_VIR_START    equ 0xfff00000
+
+KERNEL_ELF_VIR_START    equ 0xc0100000
