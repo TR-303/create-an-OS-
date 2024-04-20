@@ -1,25 +1,10 @@
-ENTRY(main)
-SECTIONS
-{
-  .text 0xC0400000:
-  {
-    code = .; _code = .; __code = .;
-    *(.text)
-  }
+ENTRY(_start)
 
-  .data ALIGN(4096):
-  {
-     data = .; _data = .; __data = .;
-     *(.data)
-     *(.rodata)
-  }
-
-  .bss ALIGN(4096):
-  {
-    bss = .; _bss = .; __bss = .;
-    *(.bss)
-    . = ALIGN(4096);
-  }
-
-  end = .; _end = .; __end = .;
+SECTIONS {
+    . = 0xc0400000;
+    .text : {*(.text)}
+    . = . + 0x10000;
+    .data : {*(.data)}
+    . = . + 0x10000;
+    .bss : {*(.bss)}
 }
