@@ -36,7 +36,7 @@ loader_start:
     push KERNEL_ELF_PHI_START % 0x10
     push kernel_elf_file_name
     call [READ_FAT12_FILE_FUNC_ADDR_ADDR]
-    add sp, 8
+    add sp, 4
 
     cmp ax, 1
     jz .read_kernel_elf_success
