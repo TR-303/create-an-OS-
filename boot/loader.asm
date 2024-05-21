@@ -7,23 +7,17 @@ loader_entry:
 
 gdt_start:
             Descriptor  0                   ,0          ,0
-LdCode32:   Descriptor  LDCODE32_START      ,LIMIT_1MB  ,ATTR_EXEC
-LdData:     Descriptor  LDDATA_START        ,LIMIT_1MB  ,ATTR_DATA
-Page:       Descriptor  PAGE_TABLE_START    ,LIMIT_1MB  ,ATTR_DATA
-Vedio:      Descriptor  VEDIO_START         ,0x7fff     ,ATTR_DATA
-
-Kernel:     Descriptor  KERNEL_VIR_START    ,LIMIT_1MB  ,ATTR_DATA
+LdCode32:   Descriptor  LDCODE32_START      ,0xfffff    ,ATTR_LDCODE32
+Data:       Descriptor  DATA_START          ,0xfffff    ,ATTR_DATA
+Vedio:      Descriptor  VEDIO_START         ,0x7fff     ,ATTR_VIDEO
 
 gdt_ptr:
     dw $-gdt_start-1
     dd gdt_start
 
 SelectorLdCode32    equ (1<<3) | 0b000
-SelectorLdData      equ (2<<3) | 0b000
-SelectorPage        equ (3<<3) | 0b000
-SelectorVideo       equ (4<<3) | 0b000
-
-SelectorKernel      equ (5<<3) | 0b000
+SelectorData        equ (2<<3) | 0b000
+SelectorVideo       equ (3<<3) | 0b000
 
 kernel_elf_file_name    db 'KERNEL  '
 
@@ -69,47 +63,44 @@ loader_start:
 code32entry:
 
     ;set data and stack segment
-    mov ax, SelectorLdData
+    mov ax, SelectorData
     mov ds, ax
     mov es, ax
+    mov fs, ax
     mov ss, ax
-
-    ;set page segment
-    mov ax, SelectorPage
-    mov es, ax
 
     ; set video segment
     mov ax, SelectorVideo
     mov gs, ax
 
     call turnon_paging
-
+    
     call load_kernel
 
     ;jmp into kernel!
-    jmp SelectorKernel:0
+    jmp KERNEL_VIR_START
+
 
 ;create last 256*1024 ptes at PAGE_TABLE_START
 turnon_paging:
 
     ;create pdes
-    mov eax, 0x100000 | 0b111
-    mov ebx, PAGE_DIR_PHY_ADDR + 768 * 4
+    mov eax, PAGE_TABLE_PHY_START | 0b111
+    mov ebx, PAGE_DIR_PHY_START + 768 * 4
     mov ecx, 256
 .lp_create_pdes:
-    mov [es:ebx], eax
+    mov [ebx], eax
     add eax, PAGE_TABLE_SIZE
     add ebx, 4
     loop .lp_create_pdes
 
     ;set pde[1023] pointing to itself
-    mov eax, PAGE_DIR_PHY_ADDR | 0b111
-    mov [es:PAGE_DIR_PHY_ADDR + 1023 * 4], eax
+    mov eax, PAGE_DIR_PHY_START | 0b111
+    mov [PAGE_DIR_PHY_START + 1023 * 4], eax
 
     ;set pde[0] and pde[768] pointing to first pte
-    mov eax, 0x100000 | 0b111
-    mov [es:PAGE_DIR_PHY_ADDR + 0 * 4], eax
-    mov [es:PAGE_DIR_PHY_ADDR + 768 * 4], eax
+    mov eax, PAGE_TABLE_PHY_START | 0b111
+    mov [PAGE_DIR_PHY_START + 0 * 4], eax
 
     ;create first 1024 pte pointing to 0-0x100000
     push 0xc0000000
@@ -122,22 +113,14 @@ turnon_paging:
     sgdt [gdt_ptr]
 
     ;mov vedio segment to > 0xc0000000
-    or byte [gdt_start + (4 << 3) + 7], 0xc0
-
-    ;mov lower 1MB segment to > 0xc0000000
-    or byte [gdt_start + (2 << 3) + 7], 0xc0
-
-    ;mov page segment to > 0xc0000000
-    mov word [gdt_start + (3 << 3) + 2], PAGE_TABLE_VIR_START & 0xffff
-    mov byte [gdt_start + (3 << 3) + 4], (PAGE_TABLE_VIR_START >> 16) & 0xff
-    mov byte [gdt_start + (3 << 3) + 7], PAGE_TABLE_VIR_START >> 24
+    or byte [gdt_start + (3 << 3) + 7], 0xc0
 
     ;load gdt again
     add dword [gdt_ptr + 2], 0xc0000000
     lgdt [gdt_ptr]
 
     ;set cr3
-    mov eax, PAGE_TABLE_START + PAGE_DIR_PHY_ADDR
+    mov eax, PAGE_DIR_PHY_START
     mov cr3, eax
 
     ;set cr0 bit
@@ -145,7 +128,6 @@ turnon_paging:
     or eax, 1 << 31
     mov cr0, eax
 
-    ;paging is now on
     ret
 
 ;setup 1024 ptes(a page)
@@ -163,10 +145,11 @@ set_page:
     shr ebx, 22
     sub ebx, 768
     shl ebx, 12
+    add ebx, PAGE_TABLE_PHY_START
     or eax, 0b111
     mov ecx, 1024
 .lp_set_page:
-    mov [es:ebx], eax
+    mov [ebx], eax
     add eax, PAGE_SIZE
     add ebx, 4
     loop .lp_set_page
@@ -182,23 +165,25 @@ load_kernel:
 
     ;set page for kernel
     push KERNEL_VIR_START
-    push KERNEL_PHI_START
+    push KERNEL_PHY_START
     call set_page
-    add sp, 8
+    add esp, 8
 
     ;copy code from elf
+    mov ecx, 0
+    mov cx, [KERNEL_ELF_PHI_START + 0x2c]
     mov ebx, [KERNEL_ELF_PHI_START + 0x1c]
-    mov ecx, [KERNEL_ELF_PHI_START + ebx + 0x10]
-    mov esi, [KERNEL_ELF_PHI_START + ebx + 0x4]
+    add ebx, KERNEL_ELF_PHI_START
+
+.load_kernel_lp_copy_segment:
+    push ecx
+    mov esi, [ebx + 4]
     add esi, KERNEL_ELF_PHI_START
-    mov ax, SelectorKernel
-    mov es, ax
-    mov edi, 0
-
+    mov edi, [ebx + 8]
+    mov ecx, [ebx + 0x14]
     rep movsb
-
-    ;turn kernel into exec segment
-    and word [gdt_start + (5 << 3) + 5], 0xf0ff
-    or word [gdt_start + (5 << 3) + 5], ATTR_EXEC
+    pop ecx
+    add ebx, 0x20
+    loop .load_kernel_lp_copy_segment
 
     ret

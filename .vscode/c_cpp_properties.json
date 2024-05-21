@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "default",
+            "intelliSenseMode": "gcc-x86",
+            "cStandard": "c11",
+            "includePath": [
+                "${workspaceFolder}/common",
+                "${workspaceFolder}/video",
+                "${workspaceFolder}/mem",
+                "${workspaceFolder}/int",
+                "${workspaceFolder}/process"
+            ],
+            "compilerPath": "C:\\Program Files\\mingw64\\bin\\gcc.exe"
+        }
+    ],
+    "version": 4
+}

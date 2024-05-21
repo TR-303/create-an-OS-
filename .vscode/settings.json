@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "common.h": "c",
+        "video.h": "c",
+        "io.h": "c",
+        "thread.h": "c",
+        "int.h": "c"
+    }
+}
