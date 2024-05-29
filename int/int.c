@@ -1,13 +1,5 @@
 #include "int.h"
-#include "io.h"
-#include "video.h"
-
-int16_t reenter = 0;
-
-idt_entry_t idt[256];
-idt_ptr_t idt_ptr;
-
-isr_handler_ptr_t isr_handlers[256] = {};
+#include "global.h"
 
 void enable_interrupt()
 {
@@ -41,11 +33,7 @@ void timer_handler(isr_param_t param)
 {
     outb(0x20, 0x20);
     putchar('T');
-}
-
-void page_fault_handler(isr_param_t param)
-{
-    puts("page fault!\n");
+    schedule();
 }
 
 void set_idt_entry(int num, uint32_t addr, uint16_t selector, uint8_t attributes)
@@ -127,7 +115,6 @@ void init_interrupt()
     set_idt_entry(47, (uint32_t)isr47, (1 << 3) | 0b000, 0b10001110);
 
     register_isr_handler(32, &timer_handler);
-    register_isr_handler(14, &page_fault_handler);
 
     idt_ptr.base = (uint32_t)idt;
     idt_ptr.limit = (256 << 3) - 1;

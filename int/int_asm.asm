@@ -1,12 +1,15 @@
 extern isr_handler
 extern reenter
+extern resume
+extern proc_running
 
 %macro ISR 1
     global isr%1
     isr%1:
         cmp byte [reenter], 0
         jz .permit%1
-        ret
+        add esp, 4
+        iret
     .permit%1:
         inc byte [reenter]
         sti
@@ -19,7 +22,7 @@ extern reenter
     isr%1:
         cmp byte [reenter], 0
         jz .permit%1
-        ret
+        iret
     .permit%1:
         inc byte [reenter]
         sti
@@ -87,6 +90,9 @@ common_handler:
 
     call isr_handler
     dec byte [reenter]
+
+resume:
+    mov esp, [proc_running]
 
     pop gs
     pop fs

@@ -1,25 +1,14 @@
+#pragma once
 #include "common.h"
+#include "int.h"
 
-extern void resume();
-
-struct stack_frame
-{
-    uint32_t gs, fs, es, ds;
-    uint32_t edi, esi, ebp, kesp, ebx, edx, ecx, eax;
-    uint32_t ret_addr;
-    uint32_t eip;
-    uint32_t cs;
-    uint32_t eflags;
-    uint32_t esp;
-    uint32_t ss;
-};
-typedef struct stack_frame stack_frame_t;
+typedef struct interrupt_stack_frame proc_stk_t;
 
 struct pcb
 {
-    stack_frame_t regs;
+    proc_stk_t regs;
     uint32_t pid;
-    char name[32];
+    uint32_t _[256];
 };
 typedef struct pcb pcb_t;
 
@@ -43,4 +32,8 @@ struct TSS
 } __attribute__((packed));
 typedef struct TSS tss_t;
 
-void create_and_start_thread(int pid, char *name, uint32_t addr);
+extern void resume();
+
+void create_and_start_thread(int pid, char *name, uint32_t addr, uint32_t stack, uint8_t is_user);
+
+void thread_test(uint32_t addr1, uint32_t addr2);

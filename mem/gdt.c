@@ -1,10 +1,5 @@
 #include "gdt.h"
-#include "thread.h"
-
-static gdt_entry_t gdt[8];
-static gdt_ptr_t gdt_ptr;
-
-static tss_t tss;
+#include "global.h"
 
 void set_gdt_entry(int num, uint32_t base, uint32_t limit, uint16_t attributes)
 {

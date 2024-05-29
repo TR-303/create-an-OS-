@@ -4,6 +4,7 @@
         "video.h": "c",
         "io.h": "c",
         "thread.h": "c",
-        "int.h": "c"
+        "int.h": "c",
+        "gdt.h": "c"
     }
 }

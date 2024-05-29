@@ -13,8 +13,7 @@ void main()
     init_interrupt();
     clear_screen();
     set_cursor_coord(0, 0);
-    enable_interrupt();
-    create_and_start_thread(0, "", (uint32_t)&testA);
+    thread_test((uint32_t)&testA, (uint32_t)&testB);
 
     while (1)
     {

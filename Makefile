@@ -9,6 +9,7 @@ ARG_INC = $(addprefix -I ,$(DIRECTORIES))
 
 kernel.elf: $(OBJS)
 	ld -T kernel/link.ld -m elf_i386 $(OBJS) -o $@
+	mcopy -o -i boot.flp kernel.elf ::
 
 %_asm.o: %_asm.asm $(DEPS)
 	nasm -felf32 $< -o $@

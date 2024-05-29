@@ -1,6 +1,7 @@
+#pragma once
 #include "common.h"
 
-extern int16_t reenter;
+extern int8_t reenter;
 
 struct idt_entry
 {
@@ -19,15 +20,16 @@ struct idt_ptr
 } __attribute((packed));
 typedef struct idt_ptr idt_ptr_t;
 
-struct isr_param
+struct interrupt_stack_frame
 {
     uint32_t gs, fs, es, ds;
-    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+    uint32_t edi, esi, ebp, _esp, ebx, edx, ecx, eax;
     uint32_t num;
     uint32_t err_code;
-    uint32_t eip, cs, eflags, user_esp, user_ss;
+    uint32_t eip, cs, eflags, esp, ss;
 } __attribute((packed));
-typedef struct isr_param isr_param_t;
+
+typedef struct interrupt_stack_frame isr_param_t;
 
 typedef void (*isr_handler_ptr_t)(isr_param_t);
 
