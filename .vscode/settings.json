@@ -2,9 +2,12 @@
     "files.associations": {
         "common.h": "c",
         "video.h": "c",
-        "io.h": "c",
         "thread.h": "c",
         "int.h": "c",
-        "gdt.h": "c"
+        "gdt.h": "c",
+        "kb.h": "c",
+        "global.h": "c",
+        "timerint.h": "c",
+        "syscall.h": "c"
     }
 }

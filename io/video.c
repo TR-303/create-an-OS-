@@ -1,4 +1,5 @@
 #include "video.h"
+#include "kb.h"
 
 uint16_t *video_memory = (uint16_t *)VEDIO_START_ADDR;
 
@@ -41,12 +42,15 @@ void roll_screen()
 void putchar_with_color(uint8_t c, uint8_t color)
 {
     uint16_t pos = get_cursor_pos();
-    if (c == '\n')
+    if (c == ENTER)
         pos = (pos / 80 + 1) * 80;
-    else if (c == '\t')
+    else if (c == TAB)
         pos = (pos / 8 + 1) * 8;
-    else if (c == 0x08) // backspace
-        video_memory[--pos] = (0x20 | (color << 8));
+    else if (c == BACKSPACE)
+    {
+        if (pos > 0)
+            video_memory[--pos] = (0x20 | (color << 8));
+    }
     else
         video_memory[pos++] = (c | (color << 8));
     if (pos >= 2000)

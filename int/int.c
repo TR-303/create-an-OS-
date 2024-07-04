@@ -1,5 +1,8 @@
 #include "int.h"
 #include "global.h"
+#include "video.h"
+#include "schedule.h"
+#include "kb.h"
 
 void enable_interrupt()
 {
@@ -29,13 +32,6 @@ void isr_handler(isr_param_t param)
         isr_handlers[param.num](param);
 }
 
-void timer_handler(isr_param_t param)
-{
-    outb(0x20, 0x20);
-    putchar('T');
-    schedule();
-}
-
 void set_idt_entry(int num, uint32_t addr, uint16_t selector, uint8_t attributes)
 {
     idt[num].addr_low = addr & 0xffff;
@@ -43,11 +39,6 @@ void set_idt_entry(int num, uint32_t addr, uint16_t selector, uint8_t attributes
     idt[num].reserved = 0;
     idt[num].attributes = attributes;
     idt[num].addr_high = addr >> 16;
-}
-
-void register_isr_handler(int num, isr_handler_ptr_t handler)
-{
-    isr_handlers[num] = handler;
 }
 
 void init_interrupt()
@@ -61,7 +52,7 @@ void init_interrupt()
     outb(0xa1, 0x02);
     outb(0x21, 0x01);
     outb(0xa1, 0x01);
-    outb(0x21, 0b11111110);
+    outb(0x21, 0b11111111);
     outb(0xa1, 0b11111111);
 
     set_idt_entry(0, (uint32_t)isr0, (1 << 3) | 0b000, 0b10001110);
@@ -114,11 +105,14 @@ void init_interrupt()
     set_idt_entry(46, (uint32_t)isr46, (1 << 3) | 0b000, 0b10001110);
     set_idt_entry(47, (uint32_t)isr47, (1 << 3) | 0b000, 0b10001110);
 
-    register_isr_handler(32, &timer_handler);
-
     idt_ptr.base = (uint32_t)idt;
     idt_ptr.limit = (256 << 3) - 1;
     asm volatile("lidt [%0]"
                  :
                  : "m"(idt_ptr));
+}
+
+void register_isr_handler(int num, isr_handler_ptr_t handler)
+{
+    isr_handlers[num] = handler;
 }

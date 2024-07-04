@@ -6,10 +6,11 @@
             "cStandard": "c11",
             "includePath": [
                 "${workspaceFolder}/common",
-                "${workspaceFolder}/video",
+                "${workspaceFolder}/io",
                 "${workspaceFolder}/mem",
                 "${workspaceFolder}/int",
-                "${workspaceFolder}/process"
+                "${workspaceFolder}/process",
+                "${workspaceFolder}/kernel"
             ],
             "compilerPath": "C:\\Program Files\\mingw64\\bin\\gcc.exe"
         }

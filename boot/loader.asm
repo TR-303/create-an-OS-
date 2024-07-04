@@ -77,36 +77,27 @@ code32entry:
     
     call load_kernel
 
-    ;jmp into kernel!
+    ;jump into kernel!
     jmp KERNEL_VIR_START
 
 
 ;create last 256*1024 ptes at PAGE_TABLE_START
 turnon_paging:
 
-    ;create pdes
-    mov eax, PAGE_TABLE_PHY_START | 0b111
-    mov ebx, PAGE_DIR_PHY_START + 768 * 4
+    ;set pde[768] pointing to first pte
+    mov eax, KERNEL_PTE_START | 0b111
+    mov dword [KERNEL_PDE_START + 768 * 4], eax
+    mov dword [KERNEL_PDE_START + 0 * 4], eax
+
+    ;create first 256 pte pointing to 0-0x100000
+    mov eax, 0 | 0b111
+    mov ebx, KERNEL_PTE_START
     mov ecx, 256
-.lp_create_pdes:
-    mov [ebx], eax
-    add eax, PAGE_TABLE_SIZE
+.lp_create_first_ptes:
+    mov dword [ebx], eax
     add ebx, 4
-    loop .lp_create_pdes
-
-    ;set pde[1023] pointing to itself
-    mov eax, PAGE_DIR_PHY_START | 0b111
-    mov [PAGE_DIR_PHY_START + 1023 * 4], eax
-
-    ;set pde[0] and pde[768] pointing to first pte
-    mov eax, PAGE_TABLE_PHY_START | 0b111
-    mov [PAGE_DIR_PHY_START + 0 * 4], eax
-
-    ;create first 1024 pte pointing to 0-0x100000
-    push 0xc0000000
-    push 0
-    call set_page
-    add esp, 8
+    add eax, PAGE_SIZE
+    loop .lp_create_first_ptes
 
     ;turn on paging mode
     
@@ -120,7 +111,7 @@ turnon_paging:
     lgdt [gdt_ptr]
 
     ;set cr3
-    mov eax, PAGE_DIR_PHY_START
+    mov eax, KERNEL_PDE_START
     mov cr3, eax
 
     ;set cr0 bit
@@ -130,44 +121,19 @@ turnon_paging:
 
     ret
 
-;setup 1024 ptes(a page)
-;arg1: physical addr
-;arg2: virtual addr
-set_page:
-    push ebp
-    mov ebp, esp
-    push eax
-    push ebx
-    push ecx
-    
-    mov eax, [ebp + 8]      ;physical addr
-    mov ebx, [ebp + 12]     ;virtual addr
-    shr ebx, 22
-    sub ebx, 768
-    shl ebx, 12
-    add ebx, PAGE_TABLE_PHY_START
-    or eax, 0b111
-    mov ecx, 1024
-.lp_set_page:
-    mov [ebx], eax
-    add eax, PAGE_SIZE
-    add ebx, 4
-    loop .lp_set_page
-
-    pop ecx
-    pop ebx
-    pop eax
-    pop ebp
-    ret
-
 ;load kernel program from elf
 load_kernel:
 
     ;set page for kernel
-    push KERNEL_VIR_START
-    push KERNEL_PHY_START
-    call set_page
-    add esp, 8
+    mov dword [KERNEL_PDE_START + 769 * 4], (KERNEL_PTE_START + PAGE_SIZE) | 0b111
+    mov eax, KERNEL_PHY_START | 0b111
+    mov ebx, KERNEL_PTE_START + PAGE_SIZE
+    mov ecx, 512
+.lp_create_first_ptes:
+    mov dword [ebx], eax
+    add ebx, 4
+    add eax, PAGE_SIZE
+    loop .lp_create_first_ptes
 
     ;copy code from elf
     mov ecx, 0

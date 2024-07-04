@@ -1,7 +1,8 @@
 extern isr_handler
-extern reenter
-extern resume
 extern proc_running
+global resume
+
+reenter db 0
 
 %macro ISR 1
     global isr%1
@@ -88,12 +89,15 @@ common_handler:
     push fs
     push gs
 
+    mov eax, [proc_running]
+    mov [eax + 84], esp
+
     call isr_handler
     dec byte [reenter]
 
 resume:
-    mov esp, [proc_running]
-
+    mov eax, [proc_running]
+    mov esp, [eax + 84]
     pop gs
     pop fs
     pop es

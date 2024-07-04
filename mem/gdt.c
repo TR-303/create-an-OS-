@@ -32,9 +32,9 @@ void reload_gdt()
     // video(DPL 3)
     set_gdt_entry(3, 0xc00b8000, 0x7fff, 0b0100000011110010);
     // user code(DPL 3)
-    set_gdt_entry(4, 0, 0xfffff, 0b1100000011111000);
+    set_gdt_entry(4, 0, 0xbffff, 0b1100000011111000);
     // user data(DPL 3)
-    set_gdt_entry(5, 0, 0xfffff, 0b1100000011110010);
+    set_gdt_entry(5, 0, 0xbffff, 0b1100000011110010);
 
     gdt_ptr.base = (uint32_t)gdt;
     gdt_ptr.limit = sizeof(gdt) - 1;

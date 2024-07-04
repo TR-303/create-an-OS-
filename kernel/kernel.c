@@ -1,39 +1,51 @@
-#include "int.h"
+#include "global.h"
 #include "video.h"
-#include "gdt.h"
-#include "thread.h"
-#include "common.h"
+#include "kb.h"
+#include "timerint.h"
+#include "schedule.h"
+#include "alloc.h"
 
-void testA();
-void testB();
+void test();
+void test2();
 
 void main()
 {
-    reload_gdt();
-    init_interrupt();
     clear_screen();
     set_cursor_coord(0, 0);
-    thread_test((uint32_t)&testA, (uint32_t)&testB);
+
+    reload_gdt();
+    init_interrupt();
+    init_timer_interrupt();
+    enable_timer_interrupt();
+    init_keyboard_interrupt();
+    enable_keyboard_interrupt();
+    init_syscall();
+    init_kernel_alloc();
+    init_scheduler();
+
+    start_kernel_thread((uint32_t)&test);
+    resume();
 
     while (1)
     {
     }
 }
 
-void testA()
+void test()
 {
     while (1)
     {
-        delay(1);
-        putchar('A');
+        char c = read_buffer();
+        if (c != EOF)
+            putchar(c);
     }
 }
 
-void testB()
+void test2()
 {
     while (1)
     {
-        delay(1);
-        putchar('B');
+        delay(2);
+        putchar('y');
     }
 }

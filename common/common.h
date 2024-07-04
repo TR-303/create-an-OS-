@@ -35,6 +35,8 @@ typedef int int32_t;
 
 #define COLOR_DEFAULT COLOR(COLOR_WHITE, COLOR_BLACK)
 
+#define EOF -1
+
 void memset(void *ptr, int value, uint32_t num);
 
 void delay(unsigned int ms);

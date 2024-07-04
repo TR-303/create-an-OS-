@@ -1,8 +1,6 @@
 #pragma once
 #include "common.h"
 
-extern int8_t reenter;
-
 struct idt_entry
 {
     uint16_t addr_low;
@@ -37,11 +35,13 @@ void enable_interrupt();
 
 void diable_interrupt();
 
-void isr_handler();
+void isr_handler(isr_param_t param);
 
-void set_igt_entry(int num, uint32_t addr, uint16_t selector, uint8_t attributes);
+void set_idt_entry(int num, uint32_t addr, uint16_t selector, uint8_t attributes);
 
 void init_interrupt();
+
+void register_isr_handler(int num, isr_handler_ptr_t handler);
 
 extern void isr0();
 extern void isr1();

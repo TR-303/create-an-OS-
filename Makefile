@@ -1,4 +1,4 @@
-DIRECTORIES = kernel video common mem int process
+DIRECTORIES = kernel io common mem int process
 SRCS = $(shell find $(DIRECTORIES) -name '*.c')
 SRCS += $(shell find $(DIRECTORIES) -name '*.asm')
 OBJS = $(SRCS:.c=.o)

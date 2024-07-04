@@ -4,13 +4,23 @@
 
 typedef struct interrupt_stack_frame proc_stk_t;
 
-struct pcb
+enum status
+{
+    RUNNING,
+    EMPTY,
+    WAITING,
+    DEAD
+};
+typedef enum status STATUS;
+
+struct tcb
 {
     proc_stk_t regs;
-    uint32_t pid;
-    uint32_t _[256];
+    uint32_t id;
+    STATUS stat;
+    uint32_t stktop;
 };
-typedef struct pcb pcb_t;
+typedef struct tcb tcb_t;
 
 struct TSS
 {
@@ -34,6 +44,6 @@ typedef struct TSS tss_t;
 
 extern void resume();
 
-void create_and_start_thread(int pid, char *name, uint32_t addr, uint32_t stack, uint8_t is_user);
+void start_kernel_thread(uint32_t func);
 
-void thread_test(uint32_t addr1, uint32_t addr2);
+void start_user_thread(uint32_t func);
