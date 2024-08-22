@@ -1,8 +1,9 @@
 #pragma once
 #include "common.h"
+#define USER_SPACE_START 0x300000
 
-void init_kernel_alloc();
+void init_memory();
 
-void *kmalloc();
+uint32_t sys_alloc_phy_page();
 
-void *malloc();
+void sys_free_phy_page(uint32_t addr);

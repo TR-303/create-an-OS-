@@ -1,16 +1,13 @@
-BANANAOSBOOT	=./out/mbr ./out/loader
+TARGET_FLP	=	../BananaOS.flp
 
-.PHONY: everything clean all
+default:	mbr.bin loader.bin rewrite_flp
 
-everything:	$(BANANAOSBOOT)
-
-clean:
-	rm -f $(BANANAOSBOOT)
-
-all:	clean everything
-
-./out/mbr:	mbr.asm ./inc/boot.inc ./inc/fat12hdr.inc
+mbr.bin:	src/mbr.asm inc/boot.inc inc/fat12hdr.inc
 	nasm -I ./inc -o $@ $<
 
-./out/loader:	loader.asm ./inc/boot.inc
+loader.bin:	src/loader.asm inc/boot.inc
 	nasm -I ./inc -o $@ $<
+
+rewrite_flp:
+	dd if=mbr.bin of=${TARGET_FLP} bs=512 count=1 conv=notrunc
+	mcopy -o -i ${TARGET_FLP} loader.bin ::

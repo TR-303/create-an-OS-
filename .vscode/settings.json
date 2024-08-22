@@ -1,13 +1,19 @@
 {
-    "files.associations": {
-        "common.h": "c",
-        "video.h": "c",
-        "thread.h": "c",
-        "int.h": "c",
-        "gdt.h": "c",
-        "kb.h": "c",
-        "global.h": "c",
-        "timerint.h": "c",
-        "syscall.h": "c"
-    }
+	"C_Cpp.errorSquiggles": "enabled",
+	"files.associations": {
+		"system_error": "c",
+		"int.h": "c",
+		"common.h": "c",
+		"cstddef": "c",
+		"random": "c",
+		"cstdint": "c",
+		"video.h": "c",
+		"interface.h": "c",
+		"alloc.h": "c",
+		"gdt.h": "c",
+		"kb.h": "c",
+		"process.h": "c",
+		"syscall.h": "c",
+		"fs.h": "c"
+	}
 }

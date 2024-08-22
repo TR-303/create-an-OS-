@@ -9,10 +9,9 @@ typedef int int32_t;
 
 #define SELECTOR_KERNEL_CODE (0x8 | 0b000)
 #define SELECTOR_KERNEL_DATA (0x10 | 0b000)
-#define SELECTOR_VIDEO (0x18 | 0b011)
-#define SELECTOR_USER_CODE (0x20 | 0b011)
-#define SELECTOR_USER_DATA (0x28 | 0b011)
-#define SELECTOR_TSS (0x30 | 0b000)
+#define SELECTOR_USER_CODE (0x18 | 0b011)
+#define SELECTOR_USER_DATA (0x20 | 0b011)
+#define SELECTOR_TSS (0x28 | 0b000)
 
 #define COLOR_BLACK 0x0
 #define COLOR_BLUE 0x1
@@ -37,10 +36,44 @@ typedef int int32_t;
 
 #define EOF -1
 
-void memset(void *ptr, int value, uint32_t num);
+//====================utils======================
+
+void memset(void* ptr, int value, uint32_t num);
+
+void memcpy(void* dest, const void* src, uint32_t n);
 
 void delay(unsigned int ms);
 
-void outb(uint16_t port, uint8_t value);
+uint32_t min(uint32_t x, uint32_t y);
+
+uint32_t max(uint32_t x, uint32_t y);
+
+//=====================string====================
+
+int32_t strcmp(const char* str1, const char* str2);
+
+char* strcpy(char* dest, const char* src);
+
+int32_t strlen(const char* str);
+
+char* strcat(char* dest, const char* src);
+
+//======================io=======================
+
+void outb(uint16_t port, uint8_t val);
 
 uint8_t inb(uint16_t port);
+
+void outw(uint16_t port, uint16_t val);
+
+uint16_t inw(uint16_t port);
+
+void outsw(uint16_t port, const void* addr, uint32_t count);
+
+void insw(uint16_t port, void* addr, uint32_t count);
+
+//====================bitmap=====================
+
+uint8_t get_bit(uint8_t* bitmap, uint32_t idx);
+
+void set_bit(uint8_t* bitmap, uint32_t idx, uint8_t bit);
