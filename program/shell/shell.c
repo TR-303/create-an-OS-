@@ -22,7 +22,7 @@ int main() {
 		int pid = fork();
 		if(pid == 0) {
 			if(exec(argv[0], argc, argv) == -1) std_write("Program not found!\n");
-			while(1);
+			return 0;
 		} else if(pid > 0) wait();
 	}
 }
