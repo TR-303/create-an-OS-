@@ -1,3 +1,5 @@
+#include "interface.h"
+
 int main() {
 	while(1) {
 		std_write(">");

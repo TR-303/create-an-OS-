@@ -14,7 +14,7 @@
 void install() {
 	uint8_t* elf = EXEC_BUFFER;
 	for(uint32_t i = 0;i < 20;++i)read_sector(i + 1, elf + 0x200 * i);
-	int fp = sys_do_open("shell.elf", OPEN_CREATE | OPEN_EXIST);
+	int fp = sys_do_open("dir", OPEN_CREATE | OPEN_EXIST);
 	if(fp == -1) {
 		sys_puts(current_proc, "open failed");
 		while(1);

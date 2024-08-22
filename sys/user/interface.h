@@ -24,3 +24,11 @@ int32_t wait();
 int32_t exec(const char* file, uint32_t argc, char* argv[]);
 
 int32_t getsize(const char* file);
+
+typedef struct dirent {
+	char fullname[16];
+	uint32_t size;
+	uint32_t space;
+}dirent_t;
+
+int32_t listdir(dirent_t* data);

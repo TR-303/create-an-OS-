@@ -79,3 +79,5 @@ int32_t sys_do_unlink(const char* name);
 int32_t sys_getsize(isr_param_t* param);
 
 int32_t sys_do_getsize(const char* name);
+
+int32_t sys_listdir(isr_param_t* param);

@@ -71,3 +71,9 @@ int32_t getsize(const char* file) {
 	asm volatile("int $0x80":"=a"(ret) : "a"(12), "b"(file));
 	return ret;
 }
+
+int32_t listdir(dirent_t* data) {
+	int ret;
+	asm volatile("int $0x80":"=a"(ret) : "a"(13), "b"(data));
+	return ret;
+}

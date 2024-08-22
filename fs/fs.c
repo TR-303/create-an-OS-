@@ -1,6 +1,7 @@
 #include "fs.h"
 #include "proc.h"
 #include "syscall.h"
+#include "user/interface.h"
 
 static superblock_t meta;
 
@@ -17,6 +18,7 @@ void init_fs() {
 	register_syscall(4, &sys_read);
 	register_syscall(5, &sys_unlink);
 	register_syscall(12, &sys_getsize);
+	register_syscall(13, &sys_listdir);
 
 	outb(0x1F6, 0xA0 | (0 << 4));
 
@@ -380,4 +382,27 @@ int32_t sys_do_getsize(const char* name) {
 	dir_entry_t e = find_file(name);
 	if(e.inode_idx == 0xffffffff)return -1;
 	return inode_table[e.inode_idx].size;
+}
+
+int32_t sys_listdir(isr_param_t* param) {
+	dirent_t* dest = (dirent_t*)param->ebx;
+
+	uint32_t cnt = 0;
+	for(uint32_t block = 0;block < inode_table[0].block_count;++block) {
+		read_sector(meta.data_start + block, FS_BUFFER);
+		dir_entry_t* dirs = (dir_entry_t*)FS_BUFFER;
+		for(uint32_t i = 0;i < 32;++i) {
+			if(dirs[i].inode_idx == 0xffffffff)continue;
+			char* filename = dest[cnt].fullname;
+			strcpy(filename, dirs[i].base);
+			if(dirs[i].ext[0] != '\0') {
+				strcat(filename, ".");
+				strcat(filename, dirs[i].ext);
+			}
+			dest[cnt].size = inode_table[dirs[i].inode_idx].size;
+			dest[cnt].space = inode_table[dirs[i].inode_idx].block_count * 0x200;
+			++cnt;
+		}
+	}
+	return cnt;
 }

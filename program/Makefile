@@ -4,7 +4,7 @@ TARGETS	=	${SRCS:.c=.elf}
 default:	${TARGETS}
 
 %.o: %.c
-	gcc -m32 -fno-builtin -nostdlib -nostdinc -fno-stack-protector -no-pie -fno-pic -Wno-implicit-function-declaration -I ../sys/user -c $< -o $@
+	gcc -m32 -fno-builtin -nostdlib -nostdinc -fno-stack-protector -no-pie -fno-pic -Wno-implicit-function-declaration -I ../sys/user -I ../common -c $< -o $@
 
 %.elf: %.o ../crt.a
 	ld -m elf_i386 $< ../crt.a -o $@

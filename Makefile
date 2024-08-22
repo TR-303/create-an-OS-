@@ -1,5 +1,5 @@
 DIRECTORIES	=	common fs io mem proc sys video
-CSRCS	=	${shell find $(DIRECTORIES) -name '*.c'}
+CSRCS	=	${shell find $(DIRECTORIES) -name '*.c' ! -path 'user/utils.c'}
 ASMSRCS	=	${shell find $(DIRECTORIES) -name '*.asm'}
 COBJS	=	${CSRCS:.c=.o}
 ASMOBJS	=	${ASMSRCS:.asm=.oasm}

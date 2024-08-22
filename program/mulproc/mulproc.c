@@ -1,3 +1,5 @@
+#include "interface.h"
+
 int main() {
 	std_write("father start\n");
 	int pid = fork();
