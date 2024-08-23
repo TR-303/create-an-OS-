@@ -25,8 +25,6 @@ void reload_gdt() {
 
     asm volatile("lgdt [%0]":: "m"(gdt_ptr));
 
-    init_tss();
-
     asm volatile(
         "mov $0x10, %%ax\n\t"
         "mov %%ax, %%ds\n\t"
@@ -35,6 +33,8 @@ void reload_gdt() {
         "mov %%ax, %%gs\n\t"
         "mov %%ax, %%ss\n\t"
         ::: "ax");
+
+    init_tss();
 
     return;
 }

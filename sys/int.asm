@@ -104,7 +104,7 @@ common_handler:
     mov [eax + 76], esp
 
     call isr_handler
-    dec byte [reenter]
+    ; dec byte [reenter]
 
 resume:
     mov ebx, [current_proc]
