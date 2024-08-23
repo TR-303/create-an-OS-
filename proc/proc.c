@@ -65,6 +65,10 @@ int32_t sys_exit(isr_param_t* param) {
 
 	for(uint32_t i = 0;i < 4;++i)if(pcb->fds[i] != 0)sys_do_close(i);
 
+	for(uint32_t i = 0;i < PROC_MAX_CNT;++i) {
+		if(proc_table[i]->father == current_proc && i != current_proc)proc_table[i]->father = 0;
+	}
+
 	sys_cleanup_memory(current_proc);
 
 	while(fpcb->stat != WAITING) {
